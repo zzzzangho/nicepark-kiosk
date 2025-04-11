@@ -92,7 +92,7 @@
 
       fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
         method: "POST",
-        credentials: "include",  // ✅ 로그인 세션 쿠키 포함!
+        credentials: "include", // ✅ 로그인 세션 쿠키 포함!
         headers: {
           "Content-Type": "application/json"
         },
@@ -107,11 +107,11 @@
       })
       .then(data => {
         console.log("✅ 할인 조회 성공:", data);
-        alert("할인 조회 성공! 콘솔(F12)에서 결과 확인하세요.");
+        alert("할인 조회 성공! 콘솔(F12)에서 확인하세요.");
       })
       .catch(err => {
         console.error("❌ 할인 조회 실패:", err);
-        alert("조회 실패: 콘솔(F12)에서 오류 확인하세요.");
+        alert("API 실패: 콘솔 확인");
       });
     }
   </script>
