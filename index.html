@@ -52,7 +52,7 @@
   </style>
 </head>
 <body>
-  <h1>차량번호를 입력하세요옹</h1>
+  <h1>차량번호를 입력하세요ㅋ</h1>
   <div class="version">최종 작성: 2025-04-11</div>
   <input type="text" id="carNumber" readonly />
   <div class="keypad">
@@ -99,8 +99,18 @@
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          dma_search: { carNo },
-          dma_tran: {}
+          dma_search: {
+            carNo4: carNo,
+            nRecordCnt: 2,
+            nCurPage: 1,
+            strFirstYn: "Y"
+          },
+          dma_tran: {
+            T_MENU_ID: "500060",
+            T_PGM_ID: "DCWD001M01",
+            T_SBM_CD: "mf_wfm_body_sbm_selectPtnrNonInCarList",
+            T_SYS_CD: "NPDC"
+          }
         })
       })
       .then(res => res.json())
