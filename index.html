@@ -15,11 +15,9 @@
       height: 100vh;
       margin: 0;
     }
-
     h1 {
       margin-bottom: 20px;
     }
-
     #carNumber {
       font-size: 2em;
       padding: 10px;
@@ -27,19 +25,16 @@
       text-align: center;
       margin-bottom: 20px;
     }
-
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 100px);
       gap: 10px;
       margin-bottom: 20px;
     }
-
     .keypad button {
       font-size: 1.5em;
       padding: 20px;
     }
-
     #submitBtn {
       padding: 15px 30px;
       font-size: 1.2em;
@@ -90,9 +85,10 @@
         return;
       }
 
-      fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
+      // 1단계: 차량 검색 요청 먼저 수행
+      fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectPtnrNonInCarList.do", {
         method: "POST",
-        credentials: "include", // ✅ 로그인 세션 쿠키 포함!
+        credentials: "include",
         headers: {
           "Content-Type": "application/json"
         },
@@ -102,16 +98,34 @@
         })
       })
       .then(res => {
-        if (!res.ok) throw new Error("요청 실패: " + res.status);
+        if (!res.ok) throw new Error("차량검색 실패");
+        return res.json();
+      })
+      .then(() => {
+        // 2단계: 할인권 정보 조회
+        return fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            dma_search: { carNo },
+            dma_tran: {}
+          })
+        });
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("할인권 조회 실패");
         return res.json();
       })
       .then(data => {
         console.log("✅ 할인 조회 성공:", data);
-        alert("할인 조회 성공! 콘솔(F12)에서 확인하세요.");
+        alert("할인권 정보 조회 완료! 콘솔(F12)에서 확인하세요.");
       })
       .catch(err => {
-        console.error("❌ 할인 조회 실패:", err);
-        alert("API 실패: 콘솔 확인");
+        console.error("❌ 실패:", err);
+        alert("조회 실패: 콘솔(F12)에서 오류 확인하세요.");
       });
     }
   </script>
