@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NICEPark 키오스크</title>
   <style>
     body {
@@ -15,9 +15,11 @@
       height: 100vh;
       margin: 0;
     }
+
     h1 {
       margin-bottom: 20px;
     }
+
     #carNumber {
       font-size: 2em;
       padding: 10px;
@@ -25,16 +27,19 @@
       text-align: center;
       margin-bottom: 20px;
     }
+
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 100px);
       gap: 10px;
       margin-bottom: 20px;
     }
+
     .keypad button {
       font-size: 1.5em;
       padding: 20px;
     }
+
     #submitBtn {
       padding: 15px 30px;
       font-size: 1.2em;
@@ -48,7 +53,7 @@
 </head>
 <body>
   <h1>차량번호를 입력하세요</h1>
-  <input type="text" id="carNumber" readonly>
+  <input type="text" id="carNumber" readonly />
   <div class="keypad">
     <button onclick="appendNumber('1')">1</button>
     <button onclick="appendNumber('2')">2</button>
@@ -63,7 +68,7 @@
     <button onclick="appendNumber('0')">0</button>
     <button onclick="submitCar()">확인</button>
   </div>
-  <button id="submitBtn" onclick="submitCar()">할인 등록</button>
+  <button id="submitBtn" onclick="submitCar()">할인 조회</button>
 
   <script>
     function appendNumber(num) {
@@ -87,7 +92,7 @@
 
       fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
         method: "POST",
-        credentials: "include",  // 🔥 이걸 넣어야 로그인 쿠키가 같이 감!
+        credentials: "include",  // ✅ 로그인 세션 쿠키 포함!
         headers: {
           "Content-Type": "application/json"
         },
@@ -101,12 +106,12 @@
         return res.json();
       })
       .then(data => {
-        console.log("✅ 할인 조회 결과:", data);
-        alert("할인 조회 성공! (콘솔 확인)");
+        console.log("✅ 할인 조회 성공:", data);
+        alert("할인 조회 성공! 콘솔(F12)에서 결과 확인하세요.");
       })
       .catch(err => {
         console.error("❌ 할인 조회 실패:", err);
-        alert("할인 실패: 콘솔 확인");
+        alert("조회 실패: 콘솔(F12)에서 오류 확인하세요.");
       });
     }
   </script>
