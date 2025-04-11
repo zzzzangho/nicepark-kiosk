@@ -16,6 +16,11 @@
       margin: 0;
     }
     h1 {
+      margin-bottom: 10px;
+    }
+    .version {
+      font-size: 0.9em;
+      color: #777;
       margin-bottom: 20px;
     }
     #carNumber {
@@ -48,6 +53,7 @@
 </head>
 <body>
   <h1>차량번호를 입력하세요</h1>
+  <div class="version">최종 작성: 2025-04-11</div>
   <input type="text" id="carNumber" readonly />
   <div class="keypad">
     <button onclick="appendNumber('1')">1</button>
@@ -85,7 +91,7 @@
         return;
       }
 
-      // 1단계: 차량 검색 요청 먼저 수행
+      // 1단계: 차량 검색
       fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectPtnrNonInCarList.do", {
         method: "POST",
         credentials: "include",
@@ -97,12 +103,14 @@
           dma_tran: {}
         })
       })
-      .then(res => {
-        if (!res.ok) throw new Error("차량검색 실패");
-        return res.json();
-      })
-      .then(() => {
-        // 2단계: 할인권 정보 조회
+      .then(res => res.json())
+      .then(data => {
+        const carInfo = data?.dma_data?.[0];
+        if (!carInfo) throw new Error("차량 정보 없음");
+
+        const { inCarDt, inCarSeqNo, carParkNo } = carInfo;
+
+        // 2단계: 할인권 조회
         return fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
           method: "POST",
           credentials: "include",
@@ -110,8 +118,13 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            dma_search: { carNo },
-            dma_tran: {}
+            dma_search: { inCarDt, inCarSeqNo, carParkNo },
+            dma_tran: {
+              T_MENU_ID: "500060",
+              T_PGM_ID: "DCWD001M01",
+              T_SBM_CD: "mf_wfm_body_sbm_selectCarDiscountTkList",
+              T_SYS_CD: "NPDC"
+            }
           })
         });
       })
