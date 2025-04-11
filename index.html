@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NICEPark 키오스크</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #carNumber {
+      font-size: 2em;
+      padding: 10px;
+      width: 300px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .keypad button {
+      font-size: 1.5em;
+      padding: 20px;
+    }
+    #submitBtn {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>차량번호를 입력하세요</h1>
+  <input type="text" id="carNumber" readonly>
+  <div class="keypad">
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button onclick="clearInput()">←</button>
+    <button onclick="appendNumber('0')">0</button>
+    <button onclick="submitCar()">확인</button>
+  </div>
+  <button id="submitBtn" onclick="submitCar()">할인 등록</button>
+
+  <script>
+    function appendNumber(num) {
+      const input = document.getElementById("carNumber");
+      if (input.value.length < 10) {
+        input.value += num;
+      }
+    }
+
+    function clearInput() {
+      const input = document.getElementById("carNumber");
+      input.value = input.value.slice(0, -1);
+    }
+
+    function submitCar() {
+      const carNo = document.getElementById("carNumber").value;
+      alert("API 연동 전입니다: 차량번호 - " + carNo);
+
+      // 실제 NICEPark API와 연동할 경우 fetch로 여기에 요청 넣기
+    }
+  </script>
+</body>
+</html>
