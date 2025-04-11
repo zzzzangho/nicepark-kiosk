@@ -80,9 +80,34 @@
 
     function submitCar() {
       const carNo = document.getElementById("carNumber").value;
-      alert("API 연동 전입니다: 차량번호 - " + carNo);
+      if (!carNo) {
+        alert("차량번호를 입력하세요.");
+        return;
+      }
 
-      // 실제 NICEPark API와 연동할 경우 fetch로 여기에 요청 넣기
+      fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
+        method: "POST",
+        credentials: "include",  // 🔥 이걸 넣어야 로그인 쿠키가 같이 감!
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          dma_search: { carNo },
+          dma_tran: {}
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("요청 실패: " + res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log("✅ 할인 조회 결과:", data);
+        alert("할인 조회 성공! (콘솔 확인)");
+      })
+      .catch(err => {
+        console.error("❌ 할인 조회 실패:", err);
+        alert("할인 실패: 콘솔 확인");
+      });
     }
   </script>
 </body>
