@@ -1,155 +1,66 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NICEPark 키오스크</title>
+  <meta charset="UTF-8">
+  <title>NICEPark 차량 조회z</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    .version {
-      font-size: 0.9em;
-      color: #777;
-      margin-bottom: 20px;
-    }
-    #carNumber {
-      font-size: 2em;
-      padding: 10px;
-      width: 300px;
+      padding: 40px;
       text-align: center;
+    }
+    input {
+      font-size: 20px;
+      padding: 10px;
+      width: 200px;
       margin-bottom: 20px;
     }
-    .keypad {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .keypad button {
-      font-size: 1.5em;
-      padding: 20px;
-    }
-    #submitBtn {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      background-color: #1e90ff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+    button {
+      font-size: 20px;
+      padding: 10px 20px;
     }
   </style>
 </head>
 <body>
-  <h1>차량번호를 입력하세요ㅋ</h1>
-  <div class="version">최종 작성: 2025-04-11</div>
-  <input type="text" id="carNumber" readonly />
-  <div class="keypad">
-    <button onclick="appendNumber('1')">1</button>
-    <button onclick="appendNumber('2')">2</button>
-    <button onclick="appendNumber('3')">3</button>
-    <button onclick="appendNumber('4')">4</button>
-    <button onclick="appendNumber('5')">5</button>
-    <button onclick="appendNumber('6')">6</button>
-    <button onclick="appendNumber('7')">7</button>
-    <button onclick="appendNumber('8')">8</button>
-    <button onclick="appendNumber('9')">9</button>
-    <button onclick="clearInput()">←</button>
-    <button onclick="appendNumber('0')">0</button>
-    <button onclick="submitCar()">확인</button>
-  </div>
-  <button id="submitBtn" onclick="submitCar()">할인 조회</button>
+  <h1>차량번호 조회</h1>
+  <input id="carNo" placeholder="예: 3551" />
+  <br />
+  <button onclick="query()">조회하기</button>
 
   <script>
-    function appendNumber(num) {
-      const input = document.getElementById("carNumber");
-      if (input.value.length < 10) {
-        input.value += num;
-      }
-    }
+    async function query() {
+      const carNo = document.getElementById("carNo").value;
+      if (!carNo) return alert("차량번호를 입력하세요.");
 
-    function clearInput() {
-      const input = document.getElementById("carNumber");
-      input.value = input.value.slice(0, -1);
-    }
-
-    function submitCar() {
-      const carNo = document.getElementById("carNumber").value;
-      if (!carNo) {
-        alert("차량번호를 입력하세요.");
-        return;
-      }
-
-      // 1단계: 차량 검색
-      fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectPtnrNonInCarList.do", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
+      const payload = {
+        dma_search: {
+          carNo4: carNo,
+          nRecordCnt: 2,
+          nCurPage: 1,
+          strFirstYn: "Y"
         },
-        body: JSON.stringify({
-          dma_search: {
-            carNo4: carNo,
-            nRecordCnt: 2,
-            nCurPage: 1,
-            strFirstYn: "Y"
-          },
-          dma_tran: {
-            T_MENU_ID: "500060",
-            T_PGM_ID: "DCWD001M01",
-            T_SBM_CD: "mf_wfm_body_sbm_selectPtnrNonInCarList",
-            T_SYS_CD: "NPDC"
-          }
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const carInfo = data?.dma_data?.[0];
-        if (!carInfo) throw new Error("차량 정보 없음");
+        dma_tran: {
+          T_MENU_ID: "500060",
+          T_PGM_ID: "DCWD001M01",
+          T_SBM_CD: "mf_wfm_body_sbm_selectPtnrNonInCarList",
+          T_SYS_CD: "NPDC"
+        }
+      };
 
-        const { inCarDt, inCarSeqNo, carParkNo } = carInfo;
-
-        // 2단계: 할인권 조회
-        return fetch("https://npdc-i.nicepark.co.kr/wd/dc/selectCarDiscountTkList.do", {
+      try {
+        const res = await fetch("https://summer-salad-c32d.zzzzangho-df2.workers.dev", {
           method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            dma_search: { inCarDt, inCarSeqNo, carParkNo },
-            dma_tran: {
-              T_MENU_ID: "500060",
-              T_PGM_ID: "DCWD001M01",
-              T_SBM_CD: "mf_wfm_body_sbm_selectCarDiscountTkList",
-              T_SYS_CD: "NPDC"
-            }
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
         });
-      })
-      .then(res => {
-        if (!res.ok) throw new Error("할인권 조회 실패");
-        return res.json();
-      })
-      .then(data => {
-        console.log("✅ 할인 조회 성공:", data);
-        alert("할인권 정보 조회 완료! 콘솔(F12)에서 확인하세요.");
-      })
-      .catch(err => {
-        console.error("❌ 실패:", err);
-        alert("조회 실패: 콘솔(F12)에서 오류 확인하세요.");
-      });
+
+        const json = await res.json();
+        console.log("✅ 조회 성공:", json);
+        alert("콘솔(F12)에서 결과 확인!");
+      } catch (e) {
+        console.error("❌ 오류:", e);
+        alert("요청 실패!");
+      }
     }
   </script>
 </body>
